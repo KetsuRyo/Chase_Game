@@ -29,10 +29,9 @@ public class GameManager {
     private void initializeAndPlacePieces(Player player, boolean isPlayerOne) {
         // 定义棋子的名称和力量等级
 
-
         String[] names = {"象", "獅", "虎", "豹", "狼", "狗", "貓", "鼠"};
         int[] strengths = {8, 7, 6, 5, 4, 3, 2, 1};
-//        int[][] positions = {{2, 6}, {0, 0}, {0, 6}, {2, 2}, {2, 4}, {1, 1}, {1, 5}, {2, 0}};
+
 
         int[][] positions = isPlayerOne ?
                 new int[][]{{2, 6}, {0, 0}, {0, 6}, {2, 2}, {2, 4}, {1, 1}, {1, 5}, {2, 0}} :
@@ -40,15 +39,13 @@ public class GameManager {
 
         for (int i = 0; i < names.length; i++) {
             String imagePath = "/animal/" + names[i] + ".png";
-            // Pass the player's gameManager reference to the GamePiece
             GamePiece piece = new GamePiece(names[i], strengths[i], positions[i][0], positions[i][1], imagePath, player.getGameManager());
             player.addPiece(piece);
             gameBoard.placePiece(piece, positions[i][0], positions[i][1]);
         }
-
     }
 
-    // 处理棋子移动的方法
+
 
 
     public  Player  getCurrentPlayer() {
@@ -86,8 +83,6 @@ public class GameManager {
             currentPlayer = player1;
         }
     }
-
-
 
     // 其他游戏管理相关的方法
     // ...
