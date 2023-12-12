@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.chessgame;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
