@@ -1,4 +1,7 @@
 package com.example.chessgame;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 public class GameManager {
     private Player player1;
@@ -11,6 +14,7 @@ public class GameManager {
         this.player2 = new Player(playerName2,this);
         this.currentPlayer = player1; // 默认从玩家1开始
         startNewGame();
+
     }
     public GameBoard getGameBoard() {
         return gameBoard;
@@ -46,7 +50,23 @@ public class GameManager {
     }
 
 
+    public void showGameOverPopup() {
+        // Determine the winner
+        String winner = isDenOccupied(player1) ? player1.getName() : player2.getName();
 
+        // Create an alert
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game Over");
+        alert.setHeaderText("Winner: " + winner);
+        alert.setContentText("Click OK to start a new game.");
+
+        // Set an action for the OK button
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                startNewGame();
+            }
+        });
+    }
 
     public  Player  getCurrentPlayer() {
         return currentPlayer;
@@ -59,11 +79,7 @@ public class GameManager {
         }
 
         // 检查是否有玩家已经没有棋子了
-        if (player1.getPieces().isEmpty() || player2.getPieces().isEmpty()) {
-            return true;
-        }
-
-        return false; // 如果以上条件都不满足，游戏继续
+        return player1.getPieces().isEmpty() || player2.getPieces().isEmpty();// 如果以上条件都不满足，游戏继续
     }
 
     // 检查玩家的棋子是否进入了对方的獸穴

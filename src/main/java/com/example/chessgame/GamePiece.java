@@ -11,19 +11,15 @@ import org.w3c.dom.events.MouseEvent;
 
 import java.io.InputStream;
 
-import static com.example.chessgame.GameUtils.isWithinBoard;
 
 public class GamePiece {
-    private final GameManager gameManager;
     private final String name;     // 棋子的名称
     private final int strength;    // 棋子的力量等级
     private int posX;        // 棋子在棋盘上的X坐标
     private int posY;        // 棋子在棋盘上的Y坐标
-    private boolean isAlive; // 棋子是否还在游戏中
     private final Text pieceName = new Text(""); // 棋子的图形表示
     private ImageView imageView;
-    private double deltaX;
-    private double deltaY;
+
 
 
     public GamePiece(String name, int strength, int posX, int posY,  String  imagePath , GameManager gameManager) {
@@ -31,9 +27,7 @@ public class GamePiece {
         this.strength = strength;
         this.posX = posX;
         this.posY = posY;
-        this.isAlive = true;
         this.pieceName.setText(name);
-        this.gameManager = gameManager;
         try {
             InputStream is = getClass().getResourceAsStream(imagePath);
             if (is == null) {
@@ -81,16 +75,7 @@ public class GamePiece {
         this.posY = posY;
     }
 
-    public boolean isAlive() {
-        return isAlive;
-    }
 
-    public void setAlive(boolean isAlive) {
-        this.isAlive = isAlive;
-    }
-
-
-    // 检查獅或虎是否尝试跳河
 
 
 
@@ -112,9 +97,6 @@ public class GamePiece {
     }
 
 
-    public Text getPieceName(){
-        return pieceName;
-    }
 
     public Node getImageView() {
         return imageView;

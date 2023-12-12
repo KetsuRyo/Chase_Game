@@ -1,5 +1,6 @@
 package com.example.chessgame;
 
+import javafx.application.Platform;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -38,7 +39,6 @@ public class GameBoard {
             movePiece(selectedPiece, newRow, newCol);
             System.out.println(selectedPiece.getName());
         }
-        System.out.println("Mouse Release");
         selectedPiece = null;
     }
 
@@ -133,7 +133,6 @@ public class GameBoard {
             deltaX = e.getSceneX() - pieceView.getLayoutX();
             deltaY = e.getSceneY() - pieceView.getLayoutY();
             selectedPiece = piece; // 更新选中的棋子
-            System.out.println("Mouse Pressed");
         });
     }
 
@@ -157,7 +156,6 @@ public class GameBoard {
 
         // 检查新位置是否仅相隔一格（上下左右）
         if (Math.abs(currentRow - newRow) + Math.abs(currentCol - newCol) != 1) {
-            System.out.println("Invalid move: You can only move one square at a time");
             return; // 新位置不是相邻的一格，移动无效
         }
         if (!isWithinBoard(newRow, newCol)) {
@@ -168,14 +166,18 @@ public class GameBoard {
         System.out.println(newRow + "+" + newCol);
         if (isRiver(newRow, newCol)) {
             // 鼠可以进入河流
-            System.out.println("Yes");
             if (piece.getName().equals("鼠")) {
                 performMove(piece, newRow, newCol);
             }
     }else {
-        System.out.println("Fuck");
+
             performMove(piece, newRow, newCol);
         }
+        Platform.runLater(() -> {
+            if (gameManager.isGameOver()) {
+                gameManager.showGameOverPopup();
+            }
+        });
 
 }
 
@@ -183,30 +185,34 @@ public class GameBoard {
     private void performMove(GamePiece piece, int newRow, int newCol) {
         GamePiece targetPiece = getPiece(newRow, newCol);
 
-        // 如果目标位置有棋子，且当前棋子不能吃掉它，直接返回false
-        if (targetPiece != null && !piece.canDefeat(targetPiece)) {
-            System.out.println("NONO");
-            return; // 目标位置有更强的棋子，不能移动
+        // Check if the target piece is on a trap
+        boolean targetOnTrap = isTrap(newRow, newCol);
+
+        // If the target position has a piece and it's not on a trap, and the current piece can't defeat it, return
+        if (targetPiece != null && !targetOnTrap && !piece.canDefeat(targetPiece)) {
+            return; // Target location has a stronger piece, can't move
         }
+
+        // If the target position has a piece belonging to the current player, return
         if (targetPiece != null && gameManager.getCurrentPlayer().getPieces().contains(targetPiece)) {
-            System.out.println("NONONO");
-            return; // 目标位置有更强的棋子，不能移动
+            return; // Can't capture your own piece
         }
-        // 移除当前棋子所在位置的棋子
+
+        // Remove the current piece from its position
         removePiece(piece.getPosX(), piece.getPosY());
 
-        // 如果目标位置有棋子，移除目标位置的棋子（因为它将被吃掉）
+        // If the target position has a piece (and it's either weaker or on a trap), remove the target piece
         if (targetPiece != null) {
-            removePiece(newRow, newCol); // 吃掉对方棋子
+            removePiece(newRow, newCol); // Capture the opposing piece
         }
 
-        // 在新位置放置棋子
+        // Place the piece in the new position
         piece.setPosX(newRow);
         piece.setPosY(newCol);
         placePiece(piece, newRow, newCol);
         gameManager.switchPlayer();
-
     }
+
 
 
 
