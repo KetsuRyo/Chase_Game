@@ -1,5 +1,4 @@
-package com.example.chessgame;
-
+package com.example.demo;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -171,52 +170,46 @@ public class AppleArrowSimulationApp extends Application {
         try {
             double arrowVelocity = Double.parseDouble(velocityStr);
             double angle = Double.parseDouble(angleStr);
-            answer = calculateInitialVelocityAndAngle(Velocity,20);
-            answer2 = calculateInitialVelocityAndAngle(Velocity,90);
+            answer = calculateInitialVelocityAndAngle(Velocity,90);
             System.out.println(answer[0]);
             System.out.println(answer[1]);
             System.out.println(Math.abs(answer[0] - arrowVelocity));
             System.out.println(Math.abs(answer[1] - angle));
             // 验证输入
             // 10 <= arrowVelocity <= 20
-            if (arrowVelocity < 10 || angle < 0 || angle > 90 || arrowVelocity > 20) {
-                resultLabel.setText("Invalid input. Velocity must be greater than 10 and smaller than 20, angle must be between 0-90 degrees.");
+            if ( angle < 0 || angle > 90 ) {
+                resultLabel.setText("Invalid input. Angle must be between 0-90 degrees.");
                 return;
             }
             double timeToGround = Math.sqrt(2 * HEIGHT / GRAVITY);
 
             double angleInRadians = Math.toRadians(angle);
-            boolean hit = Math.abs(answer[0] - arrowVelocity) < 0.1 && Math.abs(answer[1] - angle) < 0.1;
+            boolean hit = simulateHit(Velocity,arrowVelocity,angle);
             drawTrajectories(this.appleVelocity, arrowVelocity, angleInRadians, Math.sqrt(2 * HEIGHT / GRAVITY));
             double finalAppleX = appleVelocity * timeToGround;
             double finalArrowX = DISTANCE - arrowVelocity * Math.cos(angleInRadians) * timeToGround;
             double finalArrowY = arrowVelocity * Math.sin(angleInRadians) * timeToGround - 0.5 * GRAVITY * timeToGround * timeToGround;
             if (hit) {
                 resultLabel.setText("Trial #" + trial + ": Hit!");
-                if (!hasFoundSuccessfulShot) {
-                    successfulArrowVelocity = arrowVelocity;
-                    successfulAngle = angle;
-                    hasFoundSuccessfulShot = true;
-                }
+                trial = 1; // Reset for next set of simulations
+
+                resetAppleVelocityAsync(progressIndicator, simulateButton);
             } else {
 
                 resultLabel.setText(String.format("Trial #%d: Miss! Apple position: (%.2f, 0), Arrow position: (%.2f, %.2f)", trial, finalAppleX, finalArrowX, finalArrowY));
 
-                unsuccessfulAttempts++;
+
 
             }
             if (trial++ >= MAX_TRIALS) {
-                if (hasFoundSuccessfulShot) {
-                    resultLabel.setText("Successful Shot: Arrow Velocity = " + successfulArrowVelocity + ", Angle = " + Math.toDegrees(successfulAngle));
-                } else {
+
                     if(answer[0] != 0 & answer[1] != 0){
-                        resultLabel.setText(" You failed. But I can tell you successful Shot: Arrow Velocity = " + answer[0] + ", Angle = " + answer[1]);
+                        resultLabel.setText(" You failed. I would generate a new task."+ "\n" +"But I can tell you successful Shot: Arrow Velocity = " + answer[0] + ", Angle = " + answer[1]);
                     }else {
-                        resultLabel.setText("It's not possible to hit the apple.But I can tell you successful Shot: Arrow Velocity = " + answer2[0] + ", Angle = " + answer2[1]);
+                        resultLabel.setText("It's not possible to hit the apple.");
                     }
-                }
+
                 trial = 1; // Reset for next set of simulations
-                hasFoundSuccessfulShot = false;
                 unsuccessfulAttempts = 0;
                 resetAppleVelocityAsync(progressIndicator, simulateButton);
             }
@@ -245,7 +238,7 @@ public class AppleArrowSimulationApp extends Application {
 
             // Check if the arrow is at the same position as the apple
             // I set the error scale to 0.3 , I assume this apple is as big as watermelon
-            if (Math.abs(appleX - arrowX) < 0.3 && Math.abs(appleY - arrowY) < 0.3) {
+            if (Math.abs(appleX - arrowX) < 0.05 && Math.abs(appleY - arrowY) < 0.05) {
                 // The apple is hit by the arrow
                 return !(appleY < 0) && !(arrowY < 0); // The apple is not hit by the arrow
 
