@@ -1,4 +1,5 @@
-package com.example.chessgame;
+package com.example.chessGame;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -26,12 +27,7 @@ public class AppleArrowSimulationApp extends Application {
     private Label resultLabel;
     private Canvas canvas;
     private GraphicsContext gc;
-    private boolean hasFoundSuccessfulShot = false;
-    private double successfulArrowVelocity;
-    private double successfulAngle;
-    private int unsuccessfulAttempts = 0;
     private double[] answer;
-    private double[] answer2;
     private Label messageLabel;
     public static void main(String[] args) {
         launch(args);
@@ -185,7 +181,7 @@ public class AppleArrowSimulationApp extends Application {
 
             double angleInRadians = Math.toRadians(angle);
             boolean hit = simulateHit(Velocity,arrowVelocity,angle);
-            drawTrajectories(this.appleVelocity, arrowVelocity, angleInRadians, Math.sqrt(2 * HEIGHT / GRAVITY));
+            drawTrajectories(this.appleVelocity, arrowVelocity, angleInRadians);
             double finalAppleX = appleVelocity * timeToGround;
             double finalArrowX = DISTANCE - arrowVelocity * Math.cos(angleInRadians) * timeToGround;
             double finalArrowY = arrowVelocity * Math.sin(angleInRadians) * timeToGround - 0.5 * GRAVITY * timeToGround * timeToGround;
@@ -210,7 +206,6 @@ public class AppleArrowSimulationApp extends Application {
                     }
 
                 trial = 1; // Reset for next set of simulations
-                unsuccessfulAttempts = 0;
                 resetAppleVelocityAsync(progressIndicator, simulateButton);
             }
 
@@ -237,8 +232,8 @@ public class AppleArrowSimulationApp extends Application {
             double arrowY = arrowVelocity * Math.sin(Math.toRadians(arrowAngle)) * t - 0.5 * GRAVITY * t * t;
 
             // Check if the arrow is at the same position as the apple
-            // I set the error scale to 0.3 , I assume this apple is as big as watermelon
-            if (Math.abs(appleX - arrowX) < 0.05 && Math.abs(appleY - arrowY) < 0.05) {
+            // I set the error scale to 0.3
+            if (Math.abs(appleX - arrowX) < 0.3 && Math.abs(appleY - arrowY) < 0.3) {
                 // The apple is hit by the arrow
                 return !(appleY < 0) && !(arrowY < 0); // The apple is not hit by the arrow
 
@@ -271,28 +266,34 @@ public class AppleArrowSimulationApp extends Application {
 
 
 
-    private void drawTrajectories(double appleVelocity, double arrowVelocity, double angle, double timeToGround) {
-        double scale = 2.0; // This is the scaling factor
+    private void drawTrajectories(double appleVelocity, double arrowVelocity, double angle) {
+        double timeToGround = Math.sqrt(2 * HEIGHT / GRAVITY);
+        final double[] t = {0}; // 时间变量
+        double scale = 2.0;
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                // 更新位置
+                double xApple = appleVelocity * t[0] * scale;
+                double yApple = (HEIGHT - 0.5 * GRAVITY * t[0] * t[0]) * scale;
+                double xArrow = (DISTANCE - arrowVelocity * Math.cos(angle) * t[0]) * scale;
+                double yArrow = (arrowVelocity * Math.sin(angle) * t[0] - 0.5 * GRAVITY * t[0] * t[0]) * scale;
 
-        // 绘制苹果的轨迹
-        double xApple, yApple;
-        for (double t = 0; t <= timeToGround; t += 0.01) {
-            xApple = appleVelocity * t * scale;
-            yApple = (HEIGHT - 0.5 * GRAVITY * t * t) * scale;
-            gc.setStroke(Color.RED);
-            gc.setLineWidth(0.1 * scale); // Scale the line width as well
-            gc.strokeOval(xApple, canvas.getHeight() - yApple, 1 * scale, 1 * scale); // 苹果的位置
-        }
+                // 绘制位置
+                gc.setStroke(Color.RED);
+                gc.strokeOval(xApple, canvas.getHeight() - yApple, 1 * scale, 1 * scale); // 苹果的位置
+                gc.setStroke(Color.BLUE);
+                gc.strokeOval(xArrow, canvas.getHeight() - yArrow, 1 * scale, 1 * scale); // 箭的位置
 
-        // 绘制箭的轨迹
-        double xArrow, yArrow;
-        for (double t = 0; t <= timeToGround; t += 0.01) {
-            xArrow = (DISTANCE - arrowVelocity * Math.cos(angle) * t) * scale;
-            yArrow = (arrowVelocity * Math.sin(angle) * t - 0.5 * GRAVITY * t * t) * scale;
-            gc.setStroke(Color.BLUE);
-            gc.setLineWidth(0.1 * scale); // Scale the line width as well
-            gc.strokeOval(xArrow, canvas.getHeight() - yArrow, 1 * scale, 1 * scale); // 箭的位置
-        }
+                // 更新时间
+                t[0] += 0.01;
+                if (t[0] > timeToGround) {
+                    stop(); // 停止动画
+                }
+            }
+        };
+        timer.start();
     }
+
 
 }
