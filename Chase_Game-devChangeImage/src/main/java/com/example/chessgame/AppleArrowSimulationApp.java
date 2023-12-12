@@ -198,12 +198,17 @@ public class AppleArrowSimulationApp extends Application {
 
             }
             if (trial++ >= MAX_TRIALS) {
+if(hit){
+    resultLabel.setText("Trial #" + trial + ": Hit!");
+    trial = 1; // Reset for next set of simulations
 
+    resetAppleVelocityAsync(progressIndicator, simulateButton);
+}else{
                     if(answer[0] != 0 & answer[1] != 0){
                         resultLabel.setText(" You failed. I would generate a new task."+ "\n" +"But I can tell you successful Shot: Arrow Velocity = " + answer[0] + ", Angle = " + answer[1]);
                     }else {
                         resultLabel.setText("It's not possible to hit the apple.");
-                    }
+                    }}
 
                 trial = 1; // Reset for next set of simulations
                 resetAppleVelocityAsync(progressIndicator, simulateButton);
