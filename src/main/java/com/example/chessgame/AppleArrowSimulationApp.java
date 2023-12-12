@@ -228,7 +228,7 @@ public class AppleArrowSimulationApp extends Application {
     }
 
 
-    private   boolean simulateHit(double appleVelocity, double arrowVelocity, double arrowAngle) {
+    private boolean simulateHit(double appleVelocity, double arrowVelocity, double arrowAngle) {
 
 
         double timeToGround = Math.sqrt(2 * HEIGHT / GRAVITY);

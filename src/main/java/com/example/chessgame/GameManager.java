@@ -4,7 +4,8 @@ public class GameManager {
     private Player player1;
     private Player player2;
     private Player currentPlayer;
-    GameBoard gameBoard = new GameBoard();
+    private GamePiece piece;
+    GameBoard gameBoard = new GameBoard(this);
     public GameManager(String playerName1, String playerName2) {
         this.player1 = new Player(playerName1,this);
         this.player2 = new Player(playerName2,this);
@@ -31,7 +32,11 @@ public class GameManager {
 
         String[] names = {"象", "獅", "虎", "豹", "狼", "狗", "貓", "鼠"};
         int[] strengths = {8, 7, 6, 5, 4, 3, 2, 1};
-        int[][] positions = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}};
+//        int[][] positions = {{2, 6}, {0, 0}, {0, 6}, {2, 2}, {2, 4}, {1, 1}, {1, 5}, {2, 0}};
+
+        int[][] positions = isPlayerOne ?
+                new int[][]{{2, 6}, {0, 0}, {0, 6}, {2, 2}, {2, 4}, {1, 1}, {1, 5}, {2, 0}} :
+                new int[][]{{6, 0}, {8, 6}, {8, 0}, {6, 4}, {6, 2}, {7, 5}, {7, 1}, {6, 6}};
 
         for (int i = 0; i < names.length; i++) {
             String imagePath = "/animal/" + names[i] + ".png";
@@ -40,9 +45,6 @@ public class GameManager {
             player.addPiece(piece);
             gameBoard.placePiece(piece, positions[i][0], positions[i][1]);
         }
-
-
-
 
     }
 
@@ -74,10 +76,11 @@ public class GameManager {
 
         // 切换到下一个玩家
         switchPlayer();
-
     }
 
-
+    public  Player  getCurrentPlayer() {
+        return currentPlayer;
+    }
     // 检查游戏是否结束的方法
     public boolean isGameOver() {
         // 检查是否有玩家的棋子进入对方的獸穴

@@ -3,8 +3,8 @@ package com.example.chessgame;
 public class GameUtils {
 
     // 用于检查给定的坐标是否在棋盘范围内的方法
-    public static boolean isWithinBoard(int x, int y) {
-        return x >= 0 && x < 7 && y >= 0 && y < 9;
+    public static boolean isWithinBoard(int row, int col) {
+        return row >= 0 && row < 9 && col >= 0 && col < 7;
     }
 
     // 可以添加其他辅助方法，比如判断棋子是否可以移动到某个位置

@@ -3,20 +3,24 @@ package com.example.chessgame;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.text.Text;
+import org.w3c.dom.events.MouseEvent;
 
 import java.io.InputStream;
 
 import static com.example.chessgame.GameUtils.isWithinBoard;
 
 public class GamePiece {
-    private GameManager gameManager;
-    private String name;     // 棋子的名称
-    private int strength;    // 棋子的力量等级
+    private final GameManager gameManager;
+    private final String name;     // 棋子的名称
+    private final int strength;    // 棋子的力量等级
     private int posX;        // 棋子在棋盘上的X坐标
     private int posY;        // 棋子在棋盘上的Y坐标
     private boolean isAlive; // 棋子是否还在游戏中
-    private Text pieceName = new Text(""); // 棋子的图形表示
+    private final Text pieceName = new Text(""); // 棋子的图形表示
     private ImageView imageView;
     private double deltaX;
     private double deltaY;
@@ -47,25 +51,9 @@ public class GamePiece {
             System.out.println("gtp");
             // 處理錯誤，例如設置一個預設圖像
         }
-        setupMouseHandlers();
-    }
-    private void setupMouseHandlers() {
-        imageView.setOnMousePressed(e -> {
-            deltaX = e.getSceneX() - imageView.getLayoutX();
-            deltaY = e.getSceneY() - imageView.getLayoutY();
-        });
 
-        imageView.setOnMouseDragged(e -> {
-            imageView.setLayoutX(e.getSceneX() - deltaX);
-            imageView.setLayoutY(e.getSceneY() - deltaY);
-        });
-
-        imageView.setOnMouseReleased(e -> {
-            int newCol = (int) Math.floor((imageView.getLayoutX() + 25) / 50);
-            int newRow = (int) Math.floor((imageView.getLayoutY() + 25) / 50);
-            gameManager.movePiece(this, newRow, newCol);
-        });
     }
+
 
 
     // Getter和Setter方法
@@ -117,8 +105,7 @@ public class GamePiece {
         // ...
         int divideX = Math.abs(newX - this.posX) / 2;
         int divideY = Math.abs(newY - this.posY) / 2 ;
-        if (board.isRiver(divideX, divideY)) return true;
-        else return false;
+        return board.isRiver(divideX, divideY);
 
          // 示例：默认返回false
     }
@@ -177,11 +164,7 @@ public class GamePiece {
         }
 
 //        检查跳河的是否是狮虎
-        if (isTryingToJumpRiver(newX, newY, board) && !(this.name.equals("虎")) && (this.name.equals("狮"))){
-            return false;
-        }
-
-        return true;
+        return !isTryingToJumpRiver(newX, newY, board) || this.name.equals("虎") || (!this.name.equals("狮"));
     }
     private void updatePosition(int newX, int newY) {
         this.posX = newX;
