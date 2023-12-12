@@ -32,7 +32,7 @@ public class StartDialog {
             String name2 = playerName2.getText();
 
             // 调用回调方法
-            callback.onNamesEntered(name1, name2);
+         //   callback.onNamesEntered(name1, name2);
 
             gameManager = new GameManager(name1, name2);
             gameManager.startNewGame();
