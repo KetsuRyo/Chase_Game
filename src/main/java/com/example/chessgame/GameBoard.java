@@ -152,7 +152,14 @@ public class GameBoard {
 
     // 根据棋子的当前位置和目标位置来移动棋子
     public void movePiece(GamePiece piece, int newRow, int newCol) {
+        int currentRow = piece.getPosX();
+        int currentCol = piece.getPosY();
 
+        // 检查新位置是否仅相隔一格（上下左右）
+        if (Math.abs(currentRow - newRow) + Math.abs(currentCol - newCol) != 1) {
+            System.out.println("Invalid move: You can only move one square at a time");
+            return; // 新位置不是相邻的一格，移动无效
+        }
         if (!isWithinBoard(newRow, newCol)) {
             return; // 目标位置超出棋盘边界
         }
@@ -194,6 +201,8 @@ public class GameBoard {
         }
 
         // 在新位置放置棋子
+        piece.setPosX(newRow);
+        piece.setPosY(newCol);
         placePiece(piece, newRow, newCol);
         gameManager.switchPlayer();
 
