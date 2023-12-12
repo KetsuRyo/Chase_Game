@@ -1,5 +1,4 @@
 package com.example.chessgame;
-import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
@@ -41,11 +40,20 @@ public class GameManager {
                 new int[][]{{2, 6}, {0, 0}, {0, 6}, {2, 2}, {2, 4}, {1, 1}, {1, 5}, {2, 0}} :
                 new int[][]{{6, 0}, {8, 6}, {8, 0}, {6, 4}, {6, 2}, {7, 5}, {7, 1}, {6, 6}};
 
-        for (int i = 0; i < names.length; i++) {
-            String imagePath = "/animal/" + names[i] + ".png";
-            GamePiece piece = new GamePiece(names[i], strengths[i], positions[i][0], positions[i][1], imagePath, player.getGameManager());
-            player.addPiece(piece);
-            gameBoard.placePiece(piece, positions[i][0], positions[i][1]);
+        if (isPlayerOne){
+            for (int i = 0; i < names.length; i++) {
+                String imagePath = "/animal/" + names[i] + ".png";
+                GamePiece piece = new GamePiece(names[i], strengths[i], positions[i][0], positions[i][1], imagePath, player.getGameManager());
+                player.addPiece(piece);
+                gameBoard.placePiece(piece, positions[i][0], positions[i][1]);
+            }
+        } else {
+            for (int i = 0; i < names.length; i++) {
+                String imagePath = "/animal/" + names[i] + "1" + ".jpg";
+                GamePiece piece = new GamePiece(names[i], strengths[i], positions[i][0], positions[i][1], imagePath, player.getGameManager());
+                player.addPiece(piece);
+                gameBoard.placePiece(piece, positions[i][0], positions[i][1]);
+            }
         }
     }
 

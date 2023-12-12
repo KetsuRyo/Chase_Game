@@ -154,32 +154,56 @@ public class GameBoard {
         int currentRow = piece.getPosX();
         int currentCol = piece.getPosY();
 
-        // 检查新位置是否仅相隔一格（上下左右）
+        // Check if new position is adjacent
         if (Math.abs(currentRow - newRow) + Math.abs(currentCol - newCol) != 1) {
-            return; // 新位置不是相邻的一格，移动无效
+            return; // Movement is not to an adjacent cell
         }
         if (!isWithinBoard(newRow, newCol)) {
-            return; // 目标位置超出棋盘边界
+            return; // Target position is out of board
         }
 
         if (!gameManager.getCurrentPlayer().getPieces().contains(piece)) return;
         System.out.println(newRow + "+" + newCol);
-        if (isRiver(newRow, newCol)) {
-            // 鼠可以进入河流
-            if (piece.getName().equals("鼠")) {
-                performMove(piece, newRow, newCol);
-            }
-    }else {
 
-            performMove(piece, newRow, newCol);
+        boolean movingIntoRiver = isRiver(newRow, newCol);
+        boolean isRat = piece.getName().equals("鼠");
+        boolean isLionOrTiger = piece.getName().equals("獅") || piece.getName().equals("虎");
+        boolean ratInRiver = isRatInRiver(newRow, newCol);
+
+        // Special rules for lions and tigers
+        if (isLionOrTiger && movingIntoRiver && ratInRiver) {
+            return; // Lion or tiger can't move into river if rat is present
         }
+
+        // General river rules
+        if (movingIntoRiver && !isRat && !isLionOrTiger) {
+            return; // Only rat, lion, and tiger can move into river
+        }
+
+        if (isRiver(currentRow, currentCol) && getPiece(newRow, newCol) != null) {
+            return; // Can't capture a piece while in the river
+        }
+
+        performMove(piece, newRow, newCol);
+
         Platform.runLater(() -> {
             if (gameManager.isGameOver()) {
                 gameManager.showGameOverPopup();
             }
         });
+    }
 
-}
+    // Helper method to check if a rat is in the river at a given position
+    private boolean isRatInRiver(int row, int col) {
+        for (int r = 3; r <= 5; r++) {
+            for (int c = 1; c <= 5; c++) {
+                if (isRiver(r, c) && board[r][c] != null && board[r][c].getName().equals("鼠")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
 
     private void performMove(GamePiece piece, int newRow, int newCol) {
@@ -188,7 +212,7 @@ public class GameBoard {
         // Check if the target piece is on a trap
         boolean targetOnTrap = isTrap(newRow, newCol);
 
-        // If the target position has a piece and it's not on a trap, and the current piece can't defeat it, return
+        // If the target position has a piece ,and it's not on a trap, and the current piece can't defeat it, return
         if (targetPiece != null && !targetOnTrap && !piece.canDefeat(targetPiece)) {
             return; // Target location has a stronger piece, can't move
         }

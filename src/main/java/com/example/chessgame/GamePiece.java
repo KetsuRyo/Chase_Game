@@ -3,11 +3,7 @@ package com.example.chessgame;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
 import javafx.scene.text.Text;
-import org.w3c.dom.events.MouseEvent;
 
 import java.io.InputStream;
 
@@ -42,7 +38,7 @@ public class GamePiece {
             // 保持图像的纵横比
             imageView.setPreserveRatio(true);
         } catch (IllegalArgumentException e) {
-            System.out.println("gtp");
+            System.out.println(e);
             // 處理錯誤，例如設置一個預設圖像
         }
 
