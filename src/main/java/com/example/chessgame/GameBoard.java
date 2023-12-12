@@ -1,14 +1,10 @@
 package com.example.chessgame;
 
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 
 public class GameBoard {
     private GridPane gridPane;
@@ -107,9 +103,20 @@ public class GameBoard {
     // 在特定位置放置棋子
     public void placePiece(GamePiece piece, int row, int col) {
         if (isWithinBoard(row, col)) {
-            board[row][col] = piece;
             ImageView pieceView = (ImageView) piece.getImageView();
-            setupPieceEventHandlers(piece, pieceView,gameManager);
+
+            // 如果 pieceView 已经被添加到场景图中，则先从其父节点中移除
+            if (pieceView.getParent() != null) {
+                ((GridPane)pieceView.getParent()).getChildren().remove(pieceView);
+            }
+
+            // 更新棋盘数组
+            board[row][col] = piece;
+
+            // 设置事件处理器
+            setupPieceEventHandlers(piece, pieceView, gameManager);
+
+            // 将 pieceView 添加到新位置
             gridPane.add(pieceView, col, row);
         }
     }
@@ -137,43 +144,70 @@ public class GameBoard {
 
     // 根据棋子的当前位置和目标位置来移动棋子
     public boolean movePiece(GamePiece piece, int newRow, int newCol) {
-     //   if (piece != null && isWithinBoard(newRow, newCol)) {
-            // 调用 GamePiece 类的 move 方法，传递新的坐标和棋盘
-      //      if (piece.move(newRow, newCol, this)) {
-                // 如果移动合法，则更新棋盘上的棋子位置
-                removePiece(piece.getPosX(), piece.getPosY());
-                placePiece(piece, newRow, newCol);
-                return true;
-        //    }
-     //   }
-     //   return false;
+        if (!isWithinBoard(newRow, newCol)) {
+            return false; // 目标位置超出棋盘边界
+        }
+
+        // 检查目标位置是否是河流
+        if (isRiver(newRow, newCol)) {
+            // 鼠可以进入河流
+            if (piece.getName().equals("鼠")) {
+                return performMove(piece, newRow, newCol);
+            }
+
+            // 狮子和老虎可以跳河，但河中不能有鼠
+            if ((piece.getName().equals("狮") || piece.getName().equals("虎")) && canJumpRiver(newRow, this)) {
+                return performMove(piece, newRow, newCol);
+            }
+
+            return false; // 其他动物不能进入河流
+        } else {
+            // 检查是否是单格移动或狮虎跳河
+            if (Math.abs(newRow - piece.getPosX()) <= 1 && Math.abs(newCol - piece.getPosY()) <= 1) {
+                return performMove(piece, newRow, newCol);
+            } else if (piece.getName().equals("狮") || piece.getName().equals("虎")) {
+                return canJumpRiver(newRow, this) && performMove(piece, newRow, newCol);
+            }
+
+            return false; // 不符合移动规则
+        }
     }
-    /*public void movePiece2(GamePiece piece, int newX, int newY,GameManager gameManager) {
-        // 首先检查是否轮到当前玩家操作
-        if (!gameManager.getCurrentPlayer().getPieces().contains(piece)) {
-            return; // 如果不是当前玩家的棋子，则不能移动
+
+    private boolean performMove(GamePiece piece, int newRow, int newCol) {
+        GamePiece targetPiece = getPiece(newRow, newCol);
+        if (targetPiece == null || piece.canDefeat(targetPiece)) {
+            removePiece(piece.getPosX(), piece.getPosY());
+            if (targetPiece != null) {
+                removePiece(newRow, newCol); // 吃掉对方棋子
+            }
+            placePiece(piece, newRow, newCol);
+            return true;
+        }
+        return false; // 目标位置有更强的棋子，不能移动
+    }
+
+
+
+    private boolean canJumpRiver(int newX,  GameBoard board) {
+        // 确定跳河尝试是针对哪条河流
+        int startCol, endCol;
+        if (newX <= 2) { // 如果目标位置在第1列或第2列，检查左边的河流
+            startCol = 1;
+            endCol = 2;
+        } else { // 否则，检查右边的河流
+            startCol = 4;
+            endCol = 5;
         }
 
-        // 检查目标位置是否合法
-        if (!GameUtils.isWithinBoard(newX, newY)) {
-            return; // 如果目标位置超出棋盘，移动不合法
+        // 检查指定的河流区域中是否有鼠阻挡
+        for (int row = 3; row <= 5; row++) {
+            for (int col = startCol; col <= endCol; col++) {
+                GamePiece piece = board.getPiece(row, col);
+                if (piece != null && piece.getName().equals("鼠")) {
+                    return false; // 河中有鼠阻挡，不能跳河
+                }
+            }
         }
-
-        // 检查是否符合棋子的移动规则
-        if (!piece.isMoveValid(newX, newY, this)) {
-            return; // 如果移动不符合棋子的规则，移动不合法
-        }
-
-        // 如果目标位置有棋子，检查是否可以吃掉对方棋子
-        GamePiece targetPiece = this.getPiece(newX, newY);
-        if (targetPiece != null && !piece.canDefeat(targetPiece)) {
-            return; // 如果目标位置有棋子且不能吃掉，移动不合法
-        }
-
-        // 移动棋子并更新棋盘
-        this.movePiece(piece, newX, newY);
-
-        // 切换到下一个玩家
-        gameManager.switchPlayer();
-    }*/
+        return true; // 河中没有鼠阻挡，可以跳河
+    }
 }

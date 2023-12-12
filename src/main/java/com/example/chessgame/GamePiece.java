@@ -88,90 +88,14 @@ public class GamePiece {
     public void setAlive(boolean isAlive) {
         this.isAlive = isAlive;
     }
-    private boolean isValidMove(int newX, int newY, GameBoard board) {
-        // 检查是否为獅或虎
-        if (this.name.equals("獅") || this.name.equals("虎")) {
-            // 检查是否尝试跳河
-            if (isTryingToJumpRiver(newX, newY, board)) {
-                return canJumpRiver(newX, newY, board);
-            }
-        }
-        return true; // 对于非獅和虎的棋子，或者不涉及跳河的移动，总是返回true
-    }
+
 
     // 检查獅或虎是否尝试跳河
-    private boolean isTryingToJumpRiver(int newX, int newY, GameBoard board) {
-        // 跳河的逻辑，比如检查是否从河的一边移动到另一边
-        // ...
-        int divideX = Math.abs(newX - this.posX) / 2;
-        int divideY = Math.abs(newY - this.posY) / 2 ;
-        return board.isRiver(divideX, divideY);
 
-         // 示例：默认返回false
-    }
 
-    // 检查獅或虎是否可以跳河
-    private boolean canJumpRiver(int newX, int newY, GameBoard board) {
-        // 检查河中是否有鼠阻挡
-        // 可以通过遍历河中的格子来检查
-        // ...
-        for (int row = 3; row < 6; row ++){
-            for (int col = 1; col < 3; col++){
-                if (board.getPiece(row, col).name == "鼠") {
-                    return false;
-                }
-            }
-        }
 
-        for (int row = 3; row < 6; row ++){
-            for (int col = 4; col < 6; col++){
-                if (board.getPiece(row, col).name == "鼠") {
-                    return false;
-                }
-            }
-        }
-        return true; // 示例：默认返回true
-    }
-    // 棋子移动的方法
 
-    public boolean move(int newX, int newY, GameBoard board) {
-        if (!isMoveValid(newX, newY, board)) {
-            return false;
-        }
 
-        updatePosition(newX, newY);
-        return false;
-    }
-
-    public boolean isMoveValid(int newX, int newY, GameBoard board) {
-        if (!isWithinBoard(newX, newY)) {
-            return false; // 移动超出棋盘边界
-        }
-
-        //        检查是否前后左右移动
-        if (posX != newX && posY != newY){
-            return false;
-        }
-
-        // 检查新位置是否是水域，同时考虑棋子类型（只有“鼠”可以进入水域）
-        if (board.isRiver(newX, newY) && !this.name.equals("鼠")) {
-            return false; // 非“鼠”棋子不能进入水域
-        }
-
-        // 检查是否遵守其他移动规则，如“獅”和“虎”跳河的规则
-        if (!isValidMove(newX, newY, board)) {
-            return false; // 不合法的移动
-        }
-
-//        检查跳河的是否是狮虎
-        return !isTryingToJumpRiver(newX, newY, board) || this.name.equals("虎") || (!this.name.equals("狮"));
-    }
-    private void updatePosition(int newX, int newY) {
-        this.posX = newX;
-        this.posY = newY;
-        imageView.setX(newX * 50); // 假设格子大小为50x50
-        imageView.setY(newY * 50);
-    }
 
     // 检查棋子是否可以吃掉另一个棋子
     public boolean canDefeat(GamePiece other) {

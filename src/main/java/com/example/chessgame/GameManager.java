@@ -49,34 +49,7 @@ public class GameManager {
     }
 
     // 处理棋子移动的方法
-    public void movePiece(GamePiece piece, int newX, int newY) {
-        // 首先检查是否轮到当前玩家操作
-        if (!currentPlayer.getPieces().contains(piece)) {
-            return; // 如果不是当前玩家的棋子，则不能移动
-        }
 
-        // 检查目标位置是否合法
-        if (!GameUtils.isWithinBoard(newX, newY)) {
-            return; // 如果目标位置超出棋盘，移动不合法
-        }
-
-        // 检查是否符合棋子的移动规则
-        if (!piece.isMoveValid(newX, newY, gameBoard)) {
-            return; // 如果移动不符合棋子的规则，移动不合法
-        }
-
-        // 如果目标位置有棋子，检查是否可以吃掉对方棋子
-        GamePiece targetPiece = gameBoard.getPiece(newX, newY);
-        if (targetPiece != null && !piece.canDefeat(targetPiece)) {
-            return; // 如果目标位置有棋子且不能吃掉，移动不合法
-        }
-
-        // 移动棋子并更新棋盘
-        gameBoard.movePiece(piece, newX, newY);
-
-        // 切换到下一个玩家
-        switchPlayer();
-    }
 
     public  Player  getCurrentPlayer() {
         return currentPlayer;
